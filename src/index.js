@@ -21,12 +21,12 @@ const formatDate = "DD-MM-YYYY";
       for (let pos = 2; pos < lastDayOfMonth; pos++) {
         let date = worksheet.getColumn(1).values[pos];
         let dateFormatted = formatToDate(date);
-        if (daysLastWeek.indexOf(dateFormatted) >= 0) {
+        if (daysCurrentWeek.indexOf(dateFormatted) >= 0) {
           let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
           let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
           let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
           let exit2 = formatToHour(worksheet.getColumn(8).values[pos].result);
-          if (entrance1 != undefined) {
+          if (entrance1 != undefined && exit2 != "Invalid date") {
             daysToInput.push({
               date: date,
               dateFormatted: dateFormatted,
