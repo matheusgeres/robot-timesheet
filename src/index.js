@@ -7,8 +7,8 @@ const formatDate = "DD-MM-YYYY";
 (async () => {
   let month = "JUL";
   let workbook = new Excel.Workbook();
-  let daysCurrentWeek = currentWeek();
-  let daysLastWeek = lastWeek();
+  let daysCurrentWeek = weekdays();
+  let daysLastWeek = weekdays(true);
   await workbook.xlsx.readFile("meuponto_2019.xlsx");
 
   let daysToInput = [];
@@ -21,7 +21,7 @@ const formatDate = "DD-MM-YYYY";
       for (let pos = 2; pos < lastDayOfMonth; pos++) {
         let date = worksheet.getColumn(1).values[pos];
         let dateFormatted = formatToDate(date);
-        if (daysCurrentWeek.indexOf(dateFormatted) >= 0) {
+        if (daysLastWeek.indexOf(dateFormatted) >= 0) {
           let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
           let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
           let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
@@ -56,27 +56,12 @@ const formatDate = "DD-MM-YYYY";
       .format(formatDate);
   }
 
-  function lastWeek() {
+  function weekdays(isLastWeek) {
     let days = [];
     for (let index = 1; index <= 5; index++) {
-      days.push(
-        moment()
-          .add(-7, "days")
-          .day(index)
-          .format(formatDate)
-      );
-    }
-    return days;
-  }
-
-  function currentWeek() {
-    let days = [];
-    for (let index = 1; index <= 5; index++) {
-      days.push(
-        moment()
-          .day(index)
-          .format(formatDate)
-      );
+      let day = moment().day(index);
+      if(isLastWeek) day.add(-7, "days");
+      days.push(day.format(formatDate));
     }
     return days;
   }
