@@ -10,16 +10,13 @@ const dateNotTyped = "- - : - -";
   await workbook.xlsx.readFile("meuponto_2019.xlsx");
 
   let daysToInput = [];
+  let lastDayOfMonth = moment()
+    .endOf("month")
+    .format("D");
+
   workbook.eachSheet(function(worksheet, sheetId) {
     if (worksheet.name == month) {
-      for (
-        let pos = 2;
-        pos <
-        moment()
-          .endOf("month")
-          .format("D");
-        pos++
-      ) {
+      for (let pos = 2; pos < lastDayOfMonth; pos++) {
         let date = formatDate(worksheet.getColumn(1).values[pos]);
         if (daysLastWeek.indexOf(date) >= 0) {
           let entrance1 = formatHour(worksheet.getColumn(2).values[pos]);
