@@ -1,0 +1,19 @@
+{
+  "name": "robot-timesheet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "robot",
+    "timsheet",
+    "excel"
+  ],
+  "author": "matheusgeres",
+  "license": "MIT",
+  "dependencies": {
+    "exceljs": "^1.13.0"
+  }
+}
