@@ -1,6 +1,8 @@
-const Excel     = require("exceljs/modern.nodejs");
-const moment    = require("moment");
-const puppeteer = require("puppeteer");
+const Excel       = require("exceljs/modern.nodejs");
+const moment      = require("moment");
+const puppeteer   = require("puppeteer");
+const env         = require("../local.env")
+const credentials = require("../credentials");
 
 const dateNotTyped = "- - : - -";
 const formatHour   = "HH:mm";
@@ -13,6 +15,37 @@ const formatDate   = "DD-MM-YYYY";
   let daysToInput = await readTimetableFromExcel(fileName, month);
   console.log(daysToInput);
 
+  inputHoursOnTimesheet();
+
+  async function inputHoursOnTimesheet(){
+    const browser      = await puppeteer.launch({
+      headless         : env.puppeteer.headless,
+      ignoreHTTPSErrors: env.puppeteer.ignoreHTTPSErrors
+    });
+
+    const page = await browser.newPage();
+    await page.setViewport({width: env.puppeteer.viewPort.width, height: env.puppeteer.viewPort.height});
+
+    await page.goto("https://timesheet.keyrus.com.br/login.php");
+    await page.type("#login", credentials.username);
+    await page.type("#password_sem_md5", credentials.password);
+    await Promise.all([
+      page.click("#submit"),
+      page.waitForNavigation({waitUntil: env.goto.waitUntil})
+    ]);
+
+    page.evaluate(() => {
+      editHora('08:00','','18/07/2019','');
+      // getCodClientePrj(this.value,'','cadastro_time_despesa');
+    });
+
+    await page.waitFor(2000);
+
+    await page.evaluate()
+
+    await browser.close();
+  }
+  
   async function readTimetableFromExcel(fileName, month){
     let workbook = new Excel.Workbook();
     let daysCurrentWeek = weekdays();
