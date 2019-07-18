@@ -26,7 +26,7 @@ const formatDate   = "DD-MM-YYYY";
     const page = await browser.newPage();
     await page.setViewport({width: env.puppeteer.viewPort.width, height: env.puppeteer.viewPort.height});
 
-    await page.goto("https://timesheet.keyrus.com.br/login.php");
+    await page.goto(env.baseUrl);
     await page.type("#login", credentials.username);
     await page.type("#password_sem_md5", credentials.password);
     await Promise.all([
