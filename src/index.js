@@ -37,18 +37,20 @@ const formatDate   = "DD/MM/YYYY";
     await page.evaluate((daysToInput) => { editHora('08:00', '', daysToInput[0].dateFormatted, '') }, daysToInput);
     await page.waitFor(".ui-dialog");
 
-    let clientCode = "0033";
-    await page.type("#codcliente_form_lanctos", clientCode);
-    await page.evaluate((clientCode) => { getCodClientePrj(clientCode,'','cadastro_time_despesa') }, clientCode);
-
-    let projectCode = "KC2068";
-    await page.type("#codprojeto_form_lanctos", projectCode);
-    await page.evaluate((projectCode) => { getCodCliProjeto(projectCode,'set_dados_lanctos','cadastro_time_despesa') }, projectCode);
-    await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/get_dadosAtividades.ajax.php`);
-
     await page.on("dialog", (dialog) => { dialog.accept(); });
 
     for(let di of daysToInput){
+      let selectorClient = "#codcliente_form_lanctos";
+      await page.click(selectorClient, {clickCount: 3});
+      await page.type(selectorClient, di.clientCode);
+      await page.evaluate((clientCode) => { getCodClientePrj(clientCode,'','cadastro_time_despesa') }, di.clientCode);
+  
+      let selectProject = "#codprojeto_form_lanctos";
+      await page.click(selectProject, {clickCount: 3});
+      await page.type(selectProject, di.projectCode);
+      await page.evaluate((projectCode) => { getCodCliProjeto(projectCode,'set_dados_lanctos','cadastro_time_despesa') }, di.projectCode);
+      await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/get_dadosAtividades.ajax.php`);
+
       let selectorDate = "#f_data_b";
       await page.click(selectorDate, {clickCount: 3});
       await page.type(selectorDate, di.dateFormatted);
@@ -66,7 +68,7 @@ const formatDate   = "DD/MM/YYYY";
       await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
     }
 
-    // await browser.close();
+    await browser.close();
   }
   
   async function readTimetableFromExcel(fileName, month){
@@ -90,7 +92,9 @@ const formatDate   = "DD/MM/YYYY";
             let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
             let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
             let exit2 = formatToHour(worksheet.getColumn(8).values[pos].result);
-            let narrative = worksheet.getColumn(14).values[pos]
+            let narrative = worksheet.getColumn(14).values[pos];
+            let clientCode = worksheet.getColumn(15).values[pos];
+            let projectCode = worksheet.getColumn(16).values[pos];
             if (entrance1 != undefined && exit2 != "Invalid date") {
               daysToInput.push({
                 date: date,
@@ -99,7 +103,9 @@ const formatDate   = "DD/MM/YYYY";
                 exit1: exit1,
                 entrance2: entrance2,
                 exit2: exit2,
-                narrative: narrative
+                narrative: narrative,
+                clientCode: clientCode.toString().padStart(4, '0'),
+                projectCode: projectCode
               });
             }
           }
