@@ -26,7 +26,7 @@ const formatDate   = "DD/MM/YYYY";
     const page = await browser.newPage();
     await page.setViewport({width: env.puppeteer.viewPort.width, height: env.puppeteer.viewPort.height});
 
-    await page.goto(env.baseUrl);
+    await page.goto(`${env.baseUrl}/login.php`);
     await page.type("#login", credentials.username);
     await page.type("#password_sem_md5", credentials.password);
     await Promise.all([
@@ -44,7 +44,7 @@ const formatDate   = "DD/MM/YYYY";
     let projectCode = "KC2068";
     await page.type("#codprojeto_form_lanctos", projectCode);
     await page.evaluate((projectCode) => { getCodCliProjeto(projectCode,'set_dados_lanctos','cadastro_time_despesa') }, projectCode);
-    await page.waitForResponse("https://timesheet.keyrus.com.br/includes/ajax_calls/get_dadosAtividades.ajax.php");
+    await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/get_dadosAtividades.ajax.php`);
 
     await page.on("dialog", (dialog) => { dialog.accept(); });
 
@@ -63,7 +63,7 @@ const formatDate   = "DD/MM/YYYY";
       await page.type(selectorNarrative, di.narrative);
 
       await page.click("div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)");
-      await page.waitForResponse("https://timesheet.keyrus.com.br/includes/ajax_calls/saveLanctos.ajax.php");
+      await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
     }
 
     // await browser.close();
