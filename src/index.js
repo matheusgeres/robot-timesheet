@@ -108,6 +108,7 @@ const formatDate   = "DD/MM/YYYY";
                 projectCode: projectCode
               });
             } else {
+              console.log("Date", dateFormatted);
               if(entrance1 == undefined){
                 console.log("Input 1 was not entered.");
               }
