@@ -87,7 +87,7 @@ const formatDate   = "DD/MM/YYYY";
         for (let pos = 2; pos < lastDayOfMonth; pos++) {
           let date = worksheet.getColumn(1).values[pos];
           let dateFormatted = formatToDate(date);
-          if (daysCurrentWeek.indexOf(dateFormatted) >= 0) {
+          if (daysLastWeek.indexOf(dateFormatted) >= 0) {
             let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
             let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
             let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
@@ -95,7 +95,7 @@ const formatDate   = "DD/MM/YYYY";
             let narrative = worksheet.getColumn(14).values[pos];
             let clientCode = worksheet.getColumn(15).values[pos];
             let projectCode = worksheet.getColumn(16).values[pos];
-            if (entrance1 != undefined && exit2 != "Invalid date") {
+            if (entrance1 != undefined && exit2 != "Invalid date" && narrative!=undefined && clientCode!=undefined && projectCode!=undefined) {
               daysToInput.push({
                 date: date,
                 dateFormatted: dateFormatted,
@@ -107,6 +107,26 @@ const formatDate   = "DD/MM/YYYY";
                 clientCode: clientCode.toString().padStart(4, '0'),
                 projectCode: projectCode
               });
+            } else {
+              if(entrance1 == undefined){
+                console.log("Input 1 was not entered.");
+              }
+
+              if(exit2 == "Invalid date"){
+                console.log("Exit 2 has invalid date");
+              }
+
+              if(narrative==undefined){
+                console.log("Narrative has not entered");
+              }
+
+              if(clientCode==undefined){
+                console.log("Client Code has not entered");
+              }
+
+              if(projectCode==undefined){
+                console.log("Project Code has not entered");
+              }
             }
           }
         }
