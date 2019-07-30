@@ -17,7 +17,7 @@ const formatDate   = "DD/MM/YYYY";
   console.log(daysToInput);
 
   let doInput = readline.question("Do you want continue with input of hours? [y/N]");
-  if(doInput.toLowerCase()=="s"){
+  if(doInput.toLowerCase()=="y"){
     inputHoursOnTimesheet(daysToInput);
   }
 
