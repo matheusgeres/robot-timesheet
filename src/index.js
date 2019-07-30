@@ -16,7 +16,7 @@ const formatDate   = "DD/MM/YYYY";
   let daysToInput = await readTimetableFromExcel(fileName, month);
   console.log(daysToInput);
 
-  let doInput = readline.question("Desejar lançar as horas lidas da planilha? [s/N]");
+  let doInput = readline.question("Do you want continue with input of hours? [y/N]");
   if(doInput.toLowerCase()=="s"){
     inputHoursOnTimesheet(daysToInput);
   }
