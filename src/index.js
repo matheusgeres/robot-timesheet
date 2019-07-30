@@ -1,6 +1,7 @@
 const Excel       = require("exceljs/modern.nodejs");
 const moment      = require("moment");
 const puppeteer   = require("puppeteer");
+const readline    = require("readline-sync");
 const env         = require("../local.env")
 const credentials = require("../credentials");
 
@@ -15,7 +16,10 @@ const formatDate   = "DD/MM/YYYY";
   let daysToInput = await readTimetableFromExcel(fileName, month);
   console.log(daysToInput);
 
-  inputHoursOnTimesheet(daysToInput);
+  let doInput = readline.question("Desejar lançar as horas lidas da planilha? [s/N]");
+  if(doInput.toLowerCase()=="s"){
+    inputHoursOnTimesheet(daysToInput);
+  }
 
   async function inputHoursOnTimesheet(daysToInput){
     const browser      = await puppeteer.launch({
@@ -37,7 +41,7 @@ const formatDate   = "DD/MM/YYYY";
     await page.evaluate((daysToInput) => { editHora('08:00', '', daysToInput[0].dateFormatted, '') }, daysToInput);
     await page.waitFor(".ui-dialog");
 
-    await page.on("dialog", (dialog) => { dialog.accept(); });
+    await page.on("dialog", (dialog) => { console.log(dialog.message()); dialog.accept(); });
 
     for(let di of daysToInput){
       let selectorClient = "#codcliente_form_lanctos";
@@ -87,7 +91,7 @@ const formatDate   = "DD/MM/YYYY";
         for (let pos = 2; pos < lastDayOfMonth; pos++) {
           let date = worksheet.getColumn(1).values[pos];
           let dateFormatted = formatToDate(date);
-          if (daysLastWeek.indexOf(dateFormatted) >= 0) {
+          // if (daysCurrentWeek.indexOf(dateFormatted) >= 0) {
             let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
             let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
             let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
@@ -129,7 +133,7 @@ const formatDate   = "DD/MM/YYYY";
                 console.log("Project Code has not entered");
               }
             }
-          }
+          // }
         }
       }
     });
