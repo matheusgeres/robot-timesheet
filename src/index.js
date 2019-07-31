@@ -82,9 +82,11 @@ const formatDate   = "DD/MM/YYYY";
     await workbook.xlsx.readFile(fileName);
 
     let daysToInput = [];
-    let lastDayOfMonth = moment()
+    let lastDayOfMonth = parseInt(
+      moment()
       .endOf("month")
-      .format("D");
+      .format("D"));
+    lastDayOfMonth = lastDayOfMonth+2;
 
     workbook.eachSheet(function(worksheet, sheetId) {
       if (worksheet.name == month) {
