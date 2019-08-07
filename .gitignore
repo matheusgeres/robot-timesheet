@@ -97,6 +97,6 @@ typings/
 *.xlsx
 
 # Credentials
-credentials.json
+credentials/*.json
 
 # End of https://www.gitignore.io/api/node

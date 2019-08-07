@@ -1,6 +1,6 @@
 const puppeteer   = require("puppeteer");
 const env         = require("../../local.env.json")
-const credentials = require("../../credentials.json");
+const credentials = require("../../credentials/timesheet.json");
 
 exports.inputHoursOnTimesheet = async function(daysToInput){
     const browser      = await puppeteer.launch({
