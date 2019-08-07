@@ -11,6 +11,6 @@ const chrome = require('./robot/chrome');
 
   let doInput = readline.question("Do you want continue with input of hours? [y/N]");
   if(doInput.toLowerCase()=="y"){
-    chrome.inputHoursOnTimesheet(daysToInput);
+    await chrome.inputHoursOnTimesheet(daysToInput);
   }
 })();
