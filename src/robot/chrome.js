@@ -51,8 +51,8 @@ exports.inputHoursOnTimesheet = async function(daysToInput){
       await page.click(selectorNarrative, {clickCount: 3});
       await page.type(selectorNarrative, di.narrative);
 
-      // await page.click("div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)");
-      // await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
+      await page.click("div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)");
+      await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
     }
 
     await browser.close();
