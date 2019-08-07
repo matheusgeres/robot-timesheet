@@ -5,7 +5,8 @@ const credentials = require("../../credentials/timesheet.json");
 exports.inputHoursOnTimesheet = async function(daysToInput){
     const browser      = await puppeteer.launch({
       headless         : env.puppeteer.headless,
-      ignoreHTTPSErrors: env.puppeteer.ignoreHTTPSErrors
+      ignoreHTTPSErrors: env.puppeteer.ignoreHTTPSErrors,
+      args: ['--start-maximized']
     });
 
     const page = await browser.newPage();
@@ -19,6 +20,7 @@ exports.inputHoursOnTimesheet = async function(daysToInput){
       page.waitForNavigation({waitUntil: env.goto.waitUntil})
     ]);
 
+    await page.goto(`${env.baseUrl}/timesheet/multidados/module/calendario/index.php`, { waitUntil: env.goto.waitUntil });
     await page.evaluate((daysToInput) => { editHora('08:00', '', daysToInput[0].dateFormatted, '') }, daysToInput);
     await page.waitFor(".ui-dialog");
 
@@ -49,8 +51,8 @@ exports.inputHoursOnTimesheet = async function(daysToInput){
       await page.click(selectorNarrative, {clickCount: 3});
       await page.type(selectorNarrative, di.narrative);
 
-      await page.click("div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)");
-      await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
+      // await page.click("div.ui-dialog-buttonpane.ui-widget-content.ui-helper-clearfix > div > button:nth-child(2)");
+      // await page.waitForResponse(`${env.baseUrl}/includes/ajax_calls/saveLanctos.ajax.php`);
     }
 
     await browser.close();
