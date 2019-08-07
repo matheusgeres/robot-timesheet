@@ -6,10 +6,10 @@ exports.inputHoursOnTimesheet = async function(daysToInput){
     const browser      = await puppeteer.launch({
       headless         : env.puppeteer.headless,
       ignoreHTTPSErrors: env.puppeteer.ignoreHTTPSErrors,
-      args: ['--start-maximized']
+      args             : env.puppeteer.args
     });
 
-    const page = await browser.newPage();
+    const page = (await browser.pages())[0];
     await page.setViewport({width: env.puppeteer.viewPort.width, height: env.puppeteer.viewPort.height});
 
     await page.goto(`${env.baseUrl}/login.php`);
