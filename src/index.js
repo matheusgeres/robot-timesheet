@@ -19,6 +19,7 @@ const chrome   = require('./robot/chrome');
   }
   
   let daysToInput = await excel.readTimetableFromExcel(fileName, month, periodRead);
+  console.log("\nDate with hours to input")
   console.table(daysToInput);
 
   let doInput = readline.question("Do you want continue with input of hours? [y/N]");

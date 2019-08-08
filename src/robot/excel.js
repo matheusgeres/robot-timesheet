@@ -33,6 +33,7 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead){
 
     workbook.eachSheet(function(worksheet, sheetId) {
       if (worksheet.name == month) {
+        let dateWithErrors = [];
         for (let pos = 2; pos < lastDayOfMonth; pos++) {
           let date = worksheet.getColumn(1).values[pos];
           let dateFormatted = formatToDate(date);
@@ -57,28 +58,34 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead){
                 projectCode: projectCode
               });
             } else {
-              console.log("Date", dateFormatted);
+              let dateError = {date: dateFormatted};
               if(entrance1 == undefined){
-                console.log("Input 1 was not entered.");
+                dateError.entrance1 = "Input 1 was not entered.";
               }
 
               if(exit2 == "Invalid date"){
-                console.log("Exit 2 has invalid date");
+                dateError.exit2 = "Exit 2 has invalid date";
               }
 
               if(narrative==undefined){
-                console.log("Narrative has not entered");
+                dateError.narrative = "Narrative has not entered";
               }
 
               if(clientCode==undefined){
-                console.log("Client Code has not entered");
+                dateError.clientCode = "Client Code has not entered";
               }
 
               if(projectCode==undefined){
-                console.log("Project Code has not entered");
+                dateError.projectCode = "Project Code has not entered";
               }
+
+              dateWithErrors.push(dateError);
             }
           }
+        }
+        if(dateWithErrors.length>0){
+          console.log("\nDates with errors");
+          console.table(dateWithErrors);
         }
       }
     });
