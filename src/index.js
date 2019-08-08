@@ -1,6 +1,6 @@
-const readline    = require("readline-sync");
-const excel = require('./robot/excel');
-const chrome = require('./robot/chrome');
+const readline = require("readline-sync");
+const excel    = require('./robot/excel');
+const chrome   = require('./robot/chrome');
 
 (async () => {
   let month = "AGO";
