@@ -5,10 +5,23 @@ const dateNotTyped = "- - : - -";
 const formatHour   = "HH:mm";
 const formatDate   = "DD/MM/YYYY";
 
-exports.readTimetableFromExcel = async function (fileName, month){
+exports.readTimetableFromExcel = async function (fileName, month, periodRead){
     let workbook = new Excel.Workbook();
     let daysCurrentWeek = weekdays();
     let daysLastWeek = weekdays(true);
+    let daysFilter = [];
+
+    switch (periodRead) {
+      case 1:
+        break;
+      case 2: 
+        daysFilter = daysCurrentWeek;
+        break;
+      case 3:
+        daysFilter = daysLastWeek;
+        break;
+    }
+
     await workbook.xlsx.readFile(fileName);
 
     let daysToInput = [];
@@ -23,7 +36,7 @@ exports.readTimetableFromExcel = async function (fileName, month){
         for (let pos = 2; pos < lastDayOfMonth; pos++) {
           let date = worksheet.getColumn(1).values[pos];
           let dateFormatted = formatToDate(date);
-          // if (daysCurrentWeek.indexOf(dateFormatted) >= 0) {
+          if (daysFilter.indexOf(dateFormatted) >= 0 || periodRead == 1) {
             let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
             let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
             let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
@@ -65,7 +78,7 @@ exports.readTimetableFromExcel = async function (fileName, month){
                 console.log("Project Code has not entered");
               }
             }
-          // }
+          }
         }
       }
     });
