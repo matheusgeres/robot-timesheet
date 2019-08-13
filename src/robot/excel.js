@@ -55,7 +55,7 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead){
                 exit2: exit2,
                 narrative: narrative,
                 clientCode: clientCode.toString().padStart(4, '0'),
-                projectCode: projectCode
+                projectCode: projectCode.toString()
               });
             } else {
               let dateError = {date: dateFormatted};
