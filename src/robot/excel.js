@@ -43,27 +43,13 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
           let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
           let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
           let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
-          let exit2 = formatToHour(worksheet.getColumn(8).values[pos].result);
+          let exit2 = formatToHour(worksheet.getColumn(8).values[pos]);
           let narrative = worksheet.getColumn(14).values[pos];
           let clientCode = worksheet.getColumn(15).values[pos];
           let projectCode = worksheet.getColumn(16).values[pos];
           let overTime = formatToExtraHour(worksheet.getColumn(12).values[pos]);
           addDaysToInput(date, dateFormatted, entrance1 , exit1, entrance2, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-
-          if(overTimeOption==1){
-            if(overTime>0){
-              if(overTime<=twoHours){
-                let exitOver = formatToHour(worksheet.getColumn(5).values[pos]);
-                addDaysToInput(date, dateFormatted, exit2 , hourZero, hourZero, exitOver, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-              }else if(overTime>twoHours){
-                let exitOver1 = formatToHourAddMinute(worksheet.getColumn(8).values[pos].result, twoHours);
-                let exitOver2 = formatToHour(worksheet.getColumn(5).values[pos]);
-  
-                addDaysToInput(date, dateFormatted, exit2 , hourZero, hourZero, exitOver1, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-                addDaysToInput(date, dateFormatted, exitOver1 , hourZero, hourZero, exitOver2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-              }
-            }
-          }
+          addOvertime(overTimeOption, overTime, worksheet, pos, date, dateFormatted, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
         }
       }
       if(dateWithErrors.length>0){
@@ -74,6 +60,23 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
   });
 
   return daysToInput;
+}
+
+function addOvertime(overTimeOption, overTime, worksheet, pos, date, dateFormatted, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors) {
+  if (overTimeOption == 1) {
+    if (overTime > 0) {
+      if (overTime <= twoHours) {
+        let exitOver = formatToHour(worksheet.getColumn(5).values[pos]);
+        addDaysToInput(date, dateFormatted, exit2, hourZero, hourZero, exitOver, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+      }
+      else if (overTime > twoHours) {
+        let exitOver1 = formatToHourAddMinute(worksheet.getColumn(8).values[pos].result, twoHours);
+        let exitOver2 = formatToHour(worksheet.getColumn(5).values[pos]);
+        addDaysToInput(date, dateFormatted, exit2, hourZero, hourZero, exitOver1, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+        addDaysToInput(date, dateFormatted, exitOver1, hourZero, hourZero, exitOver2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+      }
+    }
+  }
 }
 
 function addDaysToInput(date, dateFormatted, entrance1 , exit1, entrance2, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors) {
@@ -120,7 +123,9 @@ function formatToHourAddMinute(columnValues, minutes) {
 }
 
 function formatToHour(columnValues) {
-  if (columnValues == dateNotTyped) return undefined;
+  if (columnValues == dateNotTyped || columnValues == undefined) return undefined;
+  if (columnValues.hasOwnProperty('result')) columnValues = columnValues.result;
+
   return moment(columnValues)
     .utc()
     .format(formatHour);
