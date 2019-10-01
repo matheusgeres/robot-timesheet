@@ -41,7 +41,7 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead){
             let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
             let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
             let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
-            let exit2 = formatToHour(worksheet.getColumn(8).values[pos].result);
+            let exit2 = formatToHour(worksheet.getColumn(8).values[pos]);
             let narrative = worksheet.getColumn(14).values[pos];
             let clientCode = worksheet.getColumn(15).values[pos];
             let projectCode = worksheet.getColumn(16).values[pos];
@@ -94,7 +94,9 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead){
   }
 
   function formatToHour(columnValues) {
-    if (columnValues == dateNotTyped) return undefined;
+    if (columnValues == dateNotTyped || columnValues == undefined) return undefined;
+    if (columnValues.hasOwnProperty('result')) columnValues = columnValues.result;
+      
     return moment(columnValues)
       .utc()
       .format(formatHour);

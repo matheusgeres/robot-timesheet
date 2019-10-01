@@ -3,7 +3,7 @@ const excel    = require('./robot/excel');
 const chrome   = require('./robot/chrome');
 
 (async () => {
-  let month = "AGO";
+  let month = "SET";
   let fileName = "meuponto_2019.xlsx";
 
   let periodRead = parseInt(readline.question(
