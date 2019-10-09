@@ -3,7 +3,7 @@ const excel    = require('./robot/excel');
 const chrome   = require('./robot/chrome');
 
 (async () => {
-  let month = "SET";
+  let month = "OUT";
   let fileName = "meuponto_2019.xlsx";
 
   let periodRead = parseInt(readline.question(
@@ -35,6 +35,6 @@ const chrome   = require('./robot/chrome');
 
   let doInput = readline.question("Do you want continue with input of hours? [y/N]");
   if(doInput.toLowerCase()=="y"){
-    await chrome.inputHoursOnTimesheet(daysToInput);
+    await chrome.inputHoursOnTimesheet(daysToInput, true);
   }
 })();
