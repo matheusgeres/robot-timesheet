@@ -35,29 +35,36 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
 
   workbook.eachSheet(function(worksheet, sheetId) {
     if (worksheet.name == month) {
-      let dateWithErrors = [];
+      let dateInput = {};
       for (let pos = 2; pos < lastDayOfMonth; pos++) {
         let date = worksheet.getColumn(1).values[pos];
         let dateFormatted = formatToDate(date);
         if (daysFilter.indexOf(dateFormatted) >= 0 || periodRead == 1) {
-          let entrance1 = formatToHour(worksheet.getColumn(2).values[pos]);
-          let exit1 = formatToHour(worksheet.getColumn(3).values[pos]);
-          let entrance2 = formatToHour(worksheet.getColumn(4).values[pos]);
-          let exit2 = formatToHour(worksheet.getColumn(8).values[pos]);
-          let narrative = worksheet.getColumn(14).values[pos];
-          let clientCode = worksheet.getColumn(15).values[pos];
-          let projectCode = worksheet.getColumn(16).values[pos];
-          let overTime = formatToExtraHour(worksheet.getColumn(12).values[pos]);
-          addDaysToInput(date, dateFormatted, entrance1 , exit1, entrance2, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+          dateInput = {
+            date: date,
+            dateFormatted: formatToDate(date),
+            entrance1: formatToHour(worksheet.getColumn(2).values[pos]),
+            exit1: formatToHour(worksheet.getColumn(3).values[pos]),
+            entrance2: formatToHour(worksheet.getColumn(4).values[pos]),
+            exit2: formatToHour(worksheet.getColumn(8).values[pos]),
+            narrative: worksheet.getColumn(14).values[pos],
+            clientCode: worksheet.getColumn(15).values[pos],
+            projectCode: worksheet.getColumn(16).values[pos],
+            dateWithErrors: []
+          }
+          addDaysToInput(daysToInput, dateInput);
 
           if (overTimeOption == 1) {
-            addOvertime(overTime, worksheet, pos, date, dateFormatted, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+            dateInput.overTime = formatToExtraHour(worksheet.getColumn(12).values[pos]);
+            dateInput.suggestedExit = worksheet.getColumn(8).values[pos];
+            dateInput.dateExit2 = worksheet.getColumn(5).values[pos];
+            addOvertime(daysToInput, dateInput);
           }
         }
       }
-      if(dateWithErrors.length>0){
+      if(dateInput.dateWithErrors.length>0){
         console.log("\nDates with errors");
-        console.table(dateWithErrors);
+        console.table(dateInput.dateWithErrors);
       }
     }
   });
@@ -65,53 +72,66 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
   return daysToInput;
 }
 
-function addOvertime(overTime, worksheet, pos, date, dateFormatted, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors) {
-  if (overTime > 0) {
-    if (overTime <= twoHours) {
-      let exitOver = formatToHour(worksheet.getColumn(5).values[pos]);
-      addDaysToInput(date, dateFormatted, exit2, hourZero, hourZero, exitOver, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-    }
-    else if (overTime > twoHours) {
-      let exitOver1 = formatToHourAddMinute(worksheet.getColumn(8).values[pos].result, twoHours);
-      let exitOver2 = formatToHour(worksheet.getColumn(5).values[pos]);
-      addDaysToInput(date, dateFormatted, exit2, hourZero, hourZero, exitOver1, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
-      addDaysToInput(date, dateFormatted, exitOver1, hourZero, hourZero, exitOver2, narrative, clientCode, projectCode, daysToInput, dateWithErrors);
+function addOvertime(daysToInput, dateInput) {
+  if (dateInput.overTime > 0) {
+    if (dateInput.overTime <= twoHours) {
+      let exitOver = formatToHour(dateInput.dateExit2);
+      let dateInputOvertime = changeEntranceAndExit(dateInput, dateInput.exit2, exitOver);
+      addDaysToInput(daysToInput, dateInputOvertime);
+    } else if (dateInput.overTime > twoHours) {
+      let exitOver1 = formatToHourAddMinute(dateInput.suggestedExit.result, twoHours);
+      let dateInputOvertime1 = changeEntranceAndExit(dateInput, dateInput.exit2, exitOver1);
+      addDaysToInput(daysToInput, dateInputOvertime1);
+
+      let exitOver2 = formatToHour(dateInput.dateExit2);
+      let dateInputOvertime2 = changeEntranceAndExit(dateInput, exitOver1, exitOver2);
+      addDaysToInput(daysToInput, dateInputOvertime2);
     }
   }
 }
 
-function addDaysToInput(date, dateFormatted, entrance1 , exit1, entrance2, exit2, narrative, clientCode, projectCode, daysToInput, dateWithErrors) {
-  if (entrance1 != undefined && exit2 != "Invalid date" && narrative != undefined && clientCode != undefined && projectCode != undefined) {
+function changeEntranceAndExit(dateInput, entrance, exit){
+  let dateInputOvertime = Object.assign({}, dateInput);
+  dateInputOvertime.entrance1 = entrance;
+  dateInputOvertime.exit1 = hourZero;
+  dateInputOvertime.entrance2 = hourZero;
+  dateInputOvertime.exit2 = exit;
+  return dateInputOvertime;
+}
+
+function addDaysToInput(daysToInput, dateInput) {
+  if (dateInput.entrance1 != undefined && dateInput.exit2 != "Invalid date" && dateInput.narrative != undefined 
+    && dateInput.clientCode != undefined && dateInput.projectCode != undefined) {
     daysToInput.push({
-      date: date,
-      dateFormatted: dateFormatted,
-      entrance1: entrance1,
-      exit1: exit1,
-      entrance2: entrance2,
-      exit2: exit2,
-      narrative: narrative,
-      clientCode: clientCode.toString().padStart(4, '0'),
-      projectCode: projectCode.toString()
+      date: dateInput.date,
+      dateFormatted: dateInput.dateFormatted,
+      entrance1: dateInput.entrance1,
+      exit1: dateInput.exit1,
+      entrance2: dateInput.entrance2,
+      exit2: dateInput.exit2,
+      narrative: dateInput.narrative,
+      clientCode: dateInput.clientCode.toString().padStart(4, '0'),
+      projectCode: dateInput.projectCode.toString()
     });
   }
   else {
-    let dateError = { date: dateFormatted };
-    if (entrance1 == undefined) {
+    let dateError = { date: dateInput.dateFormatted };
+    if (dateInput.entrance1 == undefined) {
       dateError.entrance1 = "Input 1 was not entered.";
     }
-    if (exit2 == "Invalid date") {
+    if (dateInput.exit2 == "Invalid date") {
       dateError.exit2 = "Exit 2 has invalid date";
     }
-    if (narrative == undefined) {
+    if (dateInput.narrative == undefined) {
       dateError.narrative = "Narrative has not entered";
     }
-    if (clientCode == undefined) {
+    if (dateInput.clientCode == undefined) {
       dateError.clientCode = "Client Code has not entered";
     }
-    if (projectCode == undefined) {
+    if (dateInput.projectCode == undefined) {
       dateError.projectCode = "Project Code has not entered";
     }
-    dateWithErrors.push(dateError);
+    dateInput.dateWithErrors.push(dateError);
   }
 }
 
