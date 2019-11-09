@@ -36,7 +36,7 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
   workbook.eachSheet(function(worksheet, sheetId) {
     if (worksheet.name == month) {
       let dateInput = {};
-      let dateWithErrors = [];
+      let datesErrors = [];
       for (let pos = 2; pos < lastDayOfMonth; pos++) {
         let date = worksheet.getColumn(1).values[pos];
         let dateFormatted = formatToDate(date);
@@ -50,21 +50,27 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
             exit2: formatToHour(worksheet.getColumn(8).values[pos]),
             narrative: worksheet.getColumn(14).values[pos],
             clientCode: worksheet.getColumn(15).values[pos],
-            projectCode: worksheet.getColumn(16).values[pos]
+            projectCode: worksheet.getColumn(16).values[pos],
+            dateWithErrors: []
           }
-          addDaysToInput(daysToInput, dateInput, dateWithErrors);
+          addDaysToInput(daysToInput, dateInput);
 
           if (overTimeOption == 1) {
             dateInput.overTime = formatToExtraHour(worksheet.getColumn(12).values[pos]);
             dateInput.suggestedExit = worksheet.getColumn(8).values[pos];
             dateInput.dateExit2 = worksheet.getColumn(5).values[pos];
-            addOvertime(daysToInput, dateInput, dateWithErrors);
+            addOvertime(daysToInput, dateInput);
           }
         }
+
+        if(dateInput.dateWithErrors.length>0){
+          datesErrors.push(dateInput);
+        }
       }
-      if(dateWithErrors.length>0){
+      
+      if(datesErrors.length>0){
         console.log("\nDates with errors");
-        console.table(dateWithErrors);
+        console.table(datesErrors.flatMap((d) => d.dateWithErrors));
       }
     }
   });
@@ -72,20 +78,20 @@ exports.readTimetableFromExcel = async function (fileName, month, periodRead, ov
   return daysToInput;
 }
 
-function addOvertime(daysToInput, dateInput, dateWithErrors) {
+function addOvertime(daysToInput, dateInput) {
   if (dateInput.overTime > 0) {
     if (dateInput.overTime <= twoHours) {
       let exitOver = formatToHour(dateInput.dateExit2);
       let dateInputOvertime = changeEntranceAndExit(dateInput, dateInput.exit2, exitOver);
-      addDaysToInput(daysToInput, dateInputOvertime, dateWithErrors);
+      addDaysToInput(daysToInput, dateInputOvertime);
     } else if (dateInput.overTime > twoHours) {
       let exitOver1 = formatToHourAddMinute(dateInput.suggestedExit.result, twoHours);
       let dateInputOvertime1 = changeEntranceAndExit(dateInput, dateInput.exit2, exitOver1);
-      addDaysToInput(daysToInput, dateInputOvertime1, dateWithErrors);
+      addDaysToInput(daysToInput, dateInputOvertime1);
 
       let exitOver2 = formatToHour(dateInput.dateExit2);
       let dateInputOvertime2 = changeEntranceAndExit(dateInput, exitOver1, exitOver2);
-      addDaysToInput(daysToInput, dateInputOvertime2, dateWithErrors);
+      addDaysToInput(daysToInput, dateInputOvertime2);
     }
   }
 }
@@ -99,7 +105,7 @@ function changeEntranceAndExit(dateInput, entrance, exit){
   return dateInputOvertime;
 }
 
-function addDaysToInput(daysToInput, dateInput, dateWithErrors) {
+function addDaysToInput(daysToInput, dateInput) {
   if (dateInput.entrance1 != undefined && dateInput.exit2 != "Invalid date" && dateInput.narrative != undefined 
     && dateInput.clientCode != undefined && dateInput.projectCode != undefined) {
     daysToInput.push({
@@ -131,7 +137,7 @@ function addDaysToInput(daysToInput, dateInput, dateWithErrors) {
     if (dateInput.projectCode == undefined) {
       dateError.projectCode = "Project Code has not entered";
     }
-    dateWithErrors.push(dateError);
+    dateInput.dateWithErrors.push(dateError);
   }
 }
 
