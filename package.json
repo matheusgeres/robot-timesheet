@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "exceljs": "^1.13.0",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "puppeteer": "^1.18.1",
     "readline-sync": "^1.4.10"
   }
